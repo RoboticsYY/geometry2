@@ -72,6 +72,18 @@ ament_target_dependencies(static_transform_publisher
   "tf2_msgs"
 )
 
+# static_transform_component
+add_library(static_transform_composition SHARED
+  src/tf2_ros/static_transform_component.cpp
+)
+target_link_libraries(static_transform_composition ${PROJECT_NAME})
+ament_target_dependencies(static_transform_publisher
+  "geometry_msgs"
+  "rclcpp"
+  "tf2_msgs"
+  "rclcpp_components"
+)
+
 add_executable(tf2_echo
   src/tf2_echo.cpp
 )
@@ -105,6 +117,7 @@ install(TARGETS
 install(TARGETS
   buffer_server
   static_transform_publisher
+  static_transform_composition
   tf2_echo
   tf2_monitor
   DESTINATION lib/${PROJECT_NAME}
