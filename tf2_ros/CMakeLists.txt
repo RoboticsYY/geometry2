@@ -20,6 +20,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_msgs REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 include_directories(include)
 ament_python_install_package(${PROJECT_NAME} PACKAGE_DIR src/${PROJECT_NAME})
@@ -74,7 +75,7 @@ ament_target_dependencies(static_transform_publisher
 
 # static_transform_component
 add_library(static_transform_composition SHARED
-  src/tf2_ros/static_transform_component.cpp
+  src/static_transform_component.cpp
 )
 target_link_libraries(static_transform_composition ${PROJECT_NAME})
 ament_target_dependencies(static_transform_publisher
