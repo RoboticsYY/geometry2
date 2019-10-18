@@ -10,10 +10,12 @@ static_transform_component::static_transform_component(
   double ax, double ay, double az, double aw,
   const char * frame_id, const char * child_id,
   rclcpp::NodeOptions options, const char * name
-) : rclcpp::Node(name, options)
+)
+: rclcpp::Node(name, options)
 {
   std::string tf2_name{std::string(name) + "_tf2"};
-  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(std::make_shared<rclcpp::Node>(tf2_name, options));
+  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(
+    std::make_shared<rclcpp::Node>(tf2_name, options));
   m_clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
   m_time_source.attachClock(m_clock);
 
@@ -40,10 +42,12 @@ static_transform_component::static_transform_component(
   double r, double p, double y,
   const char * frame_id, const char * child_id,
   rclcpp::NodeOptions options, const char * name
-) : rclcpp::Node(name, options)
+)
+: rclcpp::Node(name, options)
 {
   std::string tf2_name{std::string(name) + "_tf2"};
-  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(std::make_shared<rclcpp::Node>(tf2_name, options));
+  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(
+    std::make_shared<rclcpp::Node>(tf2_name, options));
   m_clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
   m_time_source.attachClock(m_clock);
 
@@ -65,11 +69,14 @@ static_transform_component::static_transform_component(
   RCLCPP_INFO(this->get_logger(), "Spinning until killed publishing %s to %s", frame_id, child_id);
 }
 
-static_transform_component::static_transform_component(const rclcpp::NodeOptions & options, const char * name)
-  : rclcpp::Node(name, options)
+static_transform_component::static_transform_component(
+  const rclcpp::NodeOptions & options,
+  const char * name)
+: rclcpp::Node(name, options)
 {
   std::string tf2_name{std::string(name) + "_tf2"};
-  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(std::make_shared<rclcpp::Node>(tf2_name, options));
+  m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(
+    std::make_shared<rclcpp::Node>(tf2_name, options));
 }
 
 void static_transform_component::send_transform(const TransformStamped & transform)
