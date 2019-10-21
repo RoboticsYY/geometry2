@@ -18,7 +18,6 @@
 
 namespace tf2_ros
 {
-
 static_transform_component::static_transform_component(
   double tx, double ty, double tz,
   double ax, double ay, double az, double aw,
