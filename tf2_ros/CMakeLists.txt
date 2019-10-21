@@ -66,6 +66,7 @@ add_executable(static_transform_publisher
 )
 target_link_libraries(static_transform_publisher
   ${PROJECT_NAME}
+  static_transform_component
 )
 ament_target_dependencies(static_transform_publisher
   "geometry_msgs"

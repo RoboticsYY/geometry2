@@ -36,7 +36,7 @@
 #include "rclcpp/time_source.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include <tf2/LinearMath/Quaternion.h>
-#include "tf2_ros/static_transform_broadcaster.h"
+#include "tf2_ros/static_transform_component.hpp"
 
 #include "builtin_interfaces/msg/time.hpp"
 
@@ -65,46 +65,28 @@ int main(int argc, char ** argv)
 {
   //Initialize ROS
   std::vector<std::string> args = rclcpp::init_and_remove_ros_arguments(argc, argv);
+  rclcpp::NodeOptions options;
+  std::shared_ptr<tf2_ros::static_transform_component> node;
 
-  // TODO(clalancette): Anonymize the node name like it is in ROS1.
-  auto node = rclcpp::Node::make_shared("static_transform_publisher");
-
-  rclcpp::TimeSource ts(node);
-  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
-  ts.attachClock(clock);
-
-  tf2_ros::StaticTransformBroadcaster broadcaster(node);
-  geometry_msgs::msg::TransformStamped msg;
-
-  if (args.size() == 10)
-  {
-    msg.transform.translation.x = atof(args[1].c_str());
-    msg.transform.translation.y = atof(args[2].c_str());
-    msg.transform.translation.z = atof(args[3].c_str());
-    msg.transform.rotation.x = atof(args[4].c_str());
-    msg.transform.rotation.y = atof(args[5].c_str());
-    msg.transform.rotation.z = atof(args[6].c_str());
-    msg.transform.rotation.w = atof(args[7].c_str());
-    msg.header.stamp = clock->now();
-    msg.header.frame_id = args[8];
-    msg.child_frame_id = args[9];
+  if (args[8] == args[9]) {
+    RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", args[8], args[9]);
+    return 1;
+  }
+  else if (args.size() == 10) {
+    // TODO(clalancette): Anonymize the node name like it is in ROS1.
+    node = std::make_shared<tf2_ros::static_transform_component>(
+      atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
+      atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()), atof(args[7].c_str()),
+      args[8].c_str(), args[9].c_str(),
+      options, "static_transform_publisher");
   }
   else if (args.size() == 9)
   {
-    msg.transform.translation.x = atof(args[1].c_str());
-    msg.transform.translation.y = atof(args[2].c_str());
-    msg.transform.translation.z = atof(args[3].c_str());
-
-    tf2::Quaternion quat;
-    quat.setRPY(atof(args[6].c_str()), atof(args[5].c_str()), atof(args[4].c_str()));
-    msg.transform.rotation.x = quat.x();
-    msg.transform.rotation.y = quat.y();
-    msg.transform.rotation.z = quat.z();
-    msg.transform.rotation.w = quat.w();
-
-    msg.header.stamp = clock->now();
-    msg.header.frame_id = args[7];
-    msg.child_frame_id = args[8];
+    node = std::make_shared<tf2_ros::static_transform_component>(
+      atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
+      atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()),
+      args[7].c_str(), args[8].c_str(),
+      options, "static_transform_publisher");
   }
   // else if (args.size() == 2) {
   //   const std::string param_name = args[1];
@@ -148,16 +130,8 @@ int main(int argc, char ** argv)
     return -1;
   }
 
-  // Checks: frames should not be the same.
-  if (msg.header.frame_id == msg.child_frame_id)
-  {
-    RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work",
-                      msg.header.frame_id.c_str(), msg.child_frame_id.c_str());
-    return 1;
+  if (node) {
+    rclcpp::spin(node);
   }
-
-  broadcaster.sendTransform(msg);
-  RCLCPP_INFO(node->get_logger(), "Spinning until killed publishing %s to %s", msg.header.frame_id.c_str(), msg.child_frame_id.c_str());
-  rclcpp::spin(node);
   return 0;
 }
