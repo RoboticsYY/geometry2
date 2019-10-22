@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
   std::shared_ptr<tf2_ros::static_transform_component> node;
 
   if (args[8] == args[9]) {
-    RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", args[8], args[9]);
+    RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", args[8].c_str(), args[9].c_str());
     return 1;
   }
   else if (args.size() == 10) {
