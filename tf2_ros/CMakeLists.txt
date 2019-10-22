@@ -85,7 +85,7 @@ ament_target_dependencies(static_transform_component
   "tf2_msgs"
   "rclcpp_components"
 )
-rclcpp_components_register_nodes(static_transform_component "tf2_ros::static_transform_component")
+rclcpp_components_register_nodes(static_transform_component "tf2_ros::StaticTransformPublisher")
 
 add_executable(tf2_echo
   src/tf2_echo.cpp

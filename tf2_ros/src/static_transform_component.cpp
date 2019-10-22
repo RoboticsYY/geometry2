@@ -33,7 +33,7 @@
 
 namespace tf2_ros
 {
-static_transform_component::static_transform_component(
+StaticTransformPublisher::StaticTransformPublisher(
   double tx, double ty, double tz,
   double ax, double ay, double az, double aw,
   const char * frame_id, const char * child_id,
@@ -65,7 +65,7 @@ static_transform_component::static_transform_component(
   RCLCPP_INFO(this->get_logger(), "Spinning until killed publishing %s to %s", frame_id, child_id);
 }
 
-static_transform_component::static_transform_component(
+StaticTransformPublisher::StaticTransformPublisher(
   double tx, double ty, double tz,
   double r, double p, double y,
   const char * frame_id, const char * child_id,
@@ -97,7 +97,7 @@ static_transform_component::static_transform_component(
   RCLCPP_INFO(this->get_logger(), "Spinning until killed publishing %s to %s", frame_id, child_id);
 }
 
-static_transform_component::static_transform_component(
+StaticTransformPublisher::StaticTransformPublisher(
   const rclcpp::NodeOptions & options,
   const char * name)
 : rclcpp::Node(name, options)
@@ -107,7 +107,7 @@ static_transform_component::static_transform_component(
     std::make_shared<rclcpp::Node>(tf2_name, options));
 }
 
-void static_transform_component::send_transform(const TransformStamped & transform)
+void StaticTransformPublisher::send_transform(const TransformStamped & transform)
 {
   m_broadcaster->sendTransform(transform);
 }
@@ -115,4 +115,4 @@ void static_transform_component::send_transform(const TransformStamped & transfo
 
 #include "rclcpp_components/register_node_macro.hpp"
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tf2_ros::static_transform_component)
+RCLCPP_COMPONENTS_REGISTER_NODE(tf2_ros::StaticTransformPublisher)

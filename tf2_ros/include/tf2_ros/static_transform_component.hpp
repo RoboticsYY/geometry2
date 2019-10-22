@@ -41,29 +41,29 @@
 
 namespace tf2_ros
 {
-class static_transform_component : public rclcpp::Node
+class StaticTransformPublisher : public rclcpp::Node
 {
 public:
-  explicit static_transform_component(
+  explicit StaticTransformPublisher(
     double tx, double ty, double tz,
     double ax, double ay, double az, double aw,
     const char * frame_id, const char * child_id,
     rclcpp::NodeOptions options, const char * name);
 
-  explicit static_transform_component(
+  explicit StaticTransformPublisher(
     double tx, double ty, double tz,
     double r, double p, double y,
     const char * frame_id, const char * child_id,
     rclcpp::NodeOptions options, const char * name);
 
-  explicit static_transform_component(
-    const rclcpp::NodeOptions & options, const char * name = "static_transform_component");
+  explicit StaticTransformPublisher(
+    const rclcpp::NodeOptions & options, const char * name = "StaticTransformPublisher");
 
   using TransformStamped = geometry_msgs::msg::TransformStamped;
 
   void send_transform(const TransformStamped & transform);
 
-  ~static_transform_component() override = default;
+  ~StaticTransformPublisher() override = default;
 
 private:
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> m_broadcaster;

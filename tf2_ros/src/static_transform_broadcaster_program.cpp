@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
   //Initialize ROS
   std::vector<std::string> args = rclcpp::init_and_remove_ros_arguments(argc, argv);
   rclcpp::NodeOptions options;
-  std::shared_ptr<tf2_ros::static_transform_component> node;
+  std::shared_ptr<tf2_ros::StaticTransformPublisher> node;
 
   if (args[8] == args[9]) {
     RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", args[8].c_str(), args[9].c_str());
@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
   }
   else if (args.size() == 10) {
     // TODO(clalancette): Anonymize the node name like it is in ROS1.
-    node = std::make_shared<tf2_ros::static_transform_component>(
+    node = std::make_shared<tf2_ros::StaticTransformPublisher>(
       atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
       atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()), atof(args[7].c_str()),
       args[8].c_str(), args[9].c_str(),
@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
   }
   else if (args.size() == 9)
   {
-    node = std::make_shared<tf2_ros::static_transform_component>(
+    node = std::make_shared<tf2_ros::StaticTransformPublisher>(
       atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
       atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()),
       args[7].c_str(), args[8].c_str(),
