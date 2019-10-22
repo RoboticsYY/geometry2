@@ -8,7 +8,6 @@
   <author>Wim Meeussen</author>
   <maintainer email="tfoote@osrfoundation.org">Tully Foote</maintainer>
   <license>BSD</license>
-  <license>Apache-2.0</license>
 
   <url type="website">http://www.ros.org/wiki/tf2_ros</url>
 
