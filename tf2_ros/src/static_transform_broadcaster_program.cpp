@@ -130,8 +130,6 @@ int main(int argc, char ** argv)
     return -1;
   }
 
-  if (node) {
-    rclcpp::spin(node);
-  }
+  rclcpp::spin(node);
   return 0;
 }
