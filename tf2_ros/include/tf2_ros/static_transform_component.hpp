@@ -49,7 +49,7 @@ public:
   ~StaticTransformPublisher() override = default;
 
 private:
-  std::unique_ptr<tf2_ros::StaticTransformBroadcaster> m_broadcaster;
+  std::unique_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_;
 };
 }
 #endif  // TF2_ROS__STATIC_TRANSFORM_COMPONENT_HPP_
