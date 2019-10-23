@@ -49,19 +49,7 @@ public:
   ~StaticTransformPublisher() override = default;
 
 private:
-  using ParameterEvent = std::shared_ptr<rcl_interfaces::msg::ParameterEvent>;
-  void on_parameter_change(const ParameterEvent event);
-  using SyncParametersClient = std::shared_ptr<rclcpp::SyncParametersClient>;
-  SyncParametersClient m_parameters_client;
-  using ParamSubscription =
-    std::shared_ptr<rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>>;
-  ParamSubscription m_param_callback;
-
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> m_broadcaster;
-  rclcpp::TimeSource m_time_source;
-  std::shared_ptr<rclcpp::Clock> m_clock;
-  using TransformStamped = geometry_msgs::msg::TransformStamped;
-  TransformStamped m_tf_msg;
 };
 }
 #endif  // TF2_ROS__STATIC_TRANSFORM_COMPONENT_HPP_

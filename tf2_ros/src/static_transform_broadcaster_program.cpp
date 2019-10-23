@@ -68,26 +68,63 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions options;
   std::shared_ptr<tf2_ros::StaticTransformPublisher> node;
 
-  if (args[8] == args[9]) {
-    RCUTILS_LOG_FATAL("target_frame and source frame are the same (%s, %s) this cannot work", args[8].c_str(), args[9].c_str());
-    return 1;
+  if (args.size() != 9 && args.size() != 10) {
+    printf("A command line utility for manually sending a transform.\n");
+    //printf("It will periodicaly republish the given transform. \n");
+    printf("Usage: static_transform_publisher x y z qx qy qz qw frame_id child_frame_id \n");
+    printf("OR \n");
+    printf("Usage: static_transform_publisher x y z yaw pitch roll frame_id child_frame_id \n");
+    //printf("OR \n");
+    //printf("Usage: static_transform_publisher /param_name \n");
+    //printf("\nThis transform is the transform of the coordinate frame from frame_id into the coordinate frame \n");
+    //printf("of the child_frame_id.  \n");
+    RCUTILS_LOG_ERROR(
+      "static_transform_publisher exited due to not having the right number of arguments");
+    return 2;
   }
-  else if (args.size() == 10) {
-    // TODO(clalancette): Anonymize the node name like it is in ROS1.
-    node = std::make_shared<tf2_ros::StaticTransformPublisher>(
-      atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
-      atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()), atof(args[7].c_str()),
-      args[8].c_str(), args[9].c_str(),
-      options, "static_transform_publisher");
+  double x = std::stod(args[1]);
+  double y = std::stod(args[2]);
+  double z = std::stod(args[3]);
+  double rx, ry, rz, rw;
+  std::string frame_id, child_id;
+
+  if (args.size() == 9) {
+    // grab parameters from roll, pitch, yaw
+    tf2::Quaternion quat;
+    quat.setRPY(std::stod(args[4]), std::stod(args[5]), std::stod(args[6]));
+    rx = quat.x();
+    ry = quat.y();
+    rz = quat.z();
+    rw = quat.w();
+    frame_id = args[7];
+    child_id = args[8];
+  } else {
+    // quaternion supplied directly
+    rx = std::stod(args[4]);
+    ry = std::stod(args[5]);
+    rz = std::stod(args[6]);
+    rw = std::stod(args[7]);
+    frame_id = args[8];
+    child_id = args[9];
   }
-  else if (args.size() == 9)
+
+  // override default parameters with the desired transform
+  options.parameter_overrides(
   {
-    node = std::make_shared<tf2_ros::StaticTransformPublisher>(
-      atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()),
-      atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()),
-      args[7].c_str(), args[8].c_str(),
-      options, "static_transform_publisher");
-  }
+    {"/translation/x", x},
+    {"/translation/y", y},
+    {"/translation/z", z},
+    {"/rotation/x", rx},
+    {"/rotation/y", ry},
+    {"/rotation/z", rz},
+    {"/rotation/w", rw},
+    {"/frame_id", frame_id},
+    {"/child_frame_id", child_id},
+  });
+
+  // TODO(clalancette): Anonymize the node name like it is in ROS1.
+  node = std::make_shared<tf2_ros::StaticTransformPublisher>(options, "static_transform_publisher");
+
   // else if (args.size() == 2) {
   //   const std::string param_name = args[1];
   //   ROS_INFO_STREAM("Looking for TF in parameter: " << param_name);
@@ -115,21 +152,9 @@ int main(int argc, char ** argv)
   //   msg.header.frame_id = (std::string) tf_data["header"]["frame_id"];
   //   msg.child_frame_id = (std::string) tf_data["child_frame_id"];
   // }
-  else
-  {
-    printf("A command line utility for manually sending a transform.\n");
-    //printf("It will periodicaly republish the given transform. \n");
-    printf("Usage: static_transform_publisher x y z qx qy qz qw frame_id child_frame_id \n");
-    printf("OR \n");
-    printf("Usage: static_transform_publisher x y z yaw pitch roll frame_id child_frame_id \n");
-    //printf("OR \n");
-    //printf("Usage: static_transform_publisher /param_name \n");
-    //printf("\nThis transform is the transform of the coordinate frame from frame_id into the coordinate frame \n");
-    //printf("of the child_frame_id.  \n");
-    RCUTILS_LOG_ERROR("static_transform_publisher exited due to not having the right number of arguments");
-    return -1;
-  }
-
+  RCLCPP_INFO(
+    node->get_logger(), "Spinning until killed publishing transform from '%s' to '%s'",
+    frame_id.c_str(), child_id.c_str());
   rclcpp::spin(node);
   return 0;
 }

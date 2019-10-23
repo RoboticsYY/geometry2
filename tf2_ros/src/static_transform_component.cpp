@@ -39,107 +39,48 @@ StaticTransformPublisher::StaticTransformPublisher(
 )
 : rclcpp::Node(name, options)
 {
+  rclcpp::ParameterValue default_value(static_cast<double>(0));
+  rcl_interfaces::msg::ParameterDescriptor descriptor;
+  descriptor.read_only = true;
+  auto tx = this->declare_parameter("/translation/x", default_value, descriptor);
+  auto ty = this->declare_parameter("/translation/y", default_value, descriptor);
+  auto tz = this->declare_parameter("/translation/z", default_value, descriptor);
+  auto rx = this->declare_parameter("/rotation/x", default_value, descriptor);
+  auto ry = this->declare_parameter("/rotation/y", default_value, descriptor);
+  auto rz = this->declare_parameter("/rotation/z", default_value, descriptor);
+  auto rw = this->declare_parameter("/rotation/w", default_value, descriptor);
+  auto p_frame_id =
+    this->declare_parameter("/frame_id", rclcpp::ParameterValue(std::string("/frame")), descriptor);
+  auto p_child_id =
+    this->declare_parameter("/child_frame_id", rclcpp::ParameterValue(std::string(
+        "/child")), descriptor);
+
   m_broadcaster = std::make_unique<tf2_ros::StaticTransformBroadcaster>(this);
-  m_clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
-  m_time_source.attachClock(m_clock);
-  m_parameters_client = std::make_shared<rclcpp::SyncParametersClient>(this);
-  for (; !m_parameters_client->wait_for_service(1s); ) {
-    if (!rclcpp::ok()) {
-      RCLCPP_ERROR(this->get_logger(), "interrupted while waiting for parameter server, exiting.");
-    }
-    RCLCPP_INFO(this->get_logger(), "waiting for parameters service...");
+  auto clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
+  rclcpp::TimeSource time_source;
+  time_source.attachClock(clock);
+
+  geometry_msgs::msg::TransformStamped tf_msg;
+  tf_msg.transform.translation.x = tx.get<double>();
+  tf_msg.transform.translation.y = ty.get<double>();
+  tf_msg.transform.translation.z = tz.get<double>();
+  tf_msg.transform.rotation.x = rx.get<double>();
+  tf_msg.transform.rotation.y = ry.get<double>();
+  tf_msg.transform.rotation.z = rz.get<double>();
+  tf_msg.transform.rotation.w = rw.get<double>();
+  tf_msg.header.frame_id = p_frame_id.get<std::string>();
+  tf_msg.child_frame_id = p_child_id.get<std::string>();
+  // check frame_id != child_frame_id
+  if (tf_msg.header.frame_id == tf_msg.child_frame_id) {
+    RCLCPP_ERROR(this->get_logger(),
+      "cannot publish static transform from '%s' to '%s', exiting",
+      tf_msg.header.frame_id.c_str(), tf_msg.child_frame_id.c_str());
+    rclcpp::shutdown();
+    return;
   }
-  m_param_callback =
-    m_parameters_client->on_parameter_event(this,
-      std::bind(&StaticTransformPublisher::on_parameter_change, this, std::placeholders::_1));
-
-  // declare parameters we will use to set the static transform
-  this->declare_parameter("/translation/x");
-  this->declare_parameter("/translation/y");
-  this->declare_paremeter("/translation/z");
-  this->declare_parameter("/rotation/x");
-  this->declare_parameter("/rotation/y");
-  this->declare_parameter("/rotation/z");
-  this->declare_parameter("/rotation/w");
-  this->declare_parameter("/frame_id");
-  this->declare_parameter("/child_frame_id");
-}
-
-void StaticTransformPublisher::on_parameter_change(const ParameterEvent event)
-{
-  auto map_parameter_to_tf = [this](const std::string & parameter_name, const double value) -> bool
-    {
-      // TODO(allenh1): Deal with remapping
-      if (parameter_name == "/translation/x") {
-        m_tf_msg.transform.translation.x = value;
-        return true;
-      } else if (parameter_name == "/translation/y") {
-        m_tf_msg.transform.translation.y = value;
-        return true;
-      } else if (parameter_name == "/translation/z") {
-        m_tf_msg.transform.translation.z = value;
-        return true;
-      } else if (parameter_name == "/rotation/x") {
-        m_tf_msg.transform.rotation.x = value;
-        return true;
-      } else if (parameter_name == "/rotation/y") {
-        m_tf_msg.transform.rotation.y = value;
-        return true;
-      } else if (parameter_name == "/rotation/z") {
-        m_tf_msg.transform.rotation.z = value;
-        return true;
-      } else if (parameter_name == "/rotation/w") {
-        m_tf_msg.transform.rotation.w = value;
-        return true;
-      }
-      return false; // unknown message field
-    };
-
-  auto map_parameter_to_frame =
-    [this](const std::string & parameter_name, const std::string & value) -> bool
-    {
-      if (parameter_name == "/frame_id") {
-        if (m_tf_msg.child_frame_id == value) {
-          RCLCPP_ERROR(this->get_logger(),
-            "rejecting parameter '%s': child_frame_id cannot equal frame_id", parameter_name);
-          return false;
-        }
-        m_tf_msg.header.frame_id = value;
-        return true;
-      } else if (parameter_name == "/child_frame_id") {
-        if (m_tf_msg.header.frame_id == value) {
-          RCLCPP_ERROR(this->get_logger(),
-            "rejecting parameter '%s': child_frame_id cannot equal frame_id", parameter_name);
-          return false;
-        }
-        m_tf_msg.child_frame_id = value;
-        return true;
-      }
-      return false; // unknown message field
-    };
-
-  bool update = true;
-  for (auto & new_parameter : event->new_parameters) {
-    update &= (map_parameter_to_tf(new_parameter.name, new_parameter.value.double_value) ||
-      map_parameter_to_frame(new_parameter.name, new_parameter.value.string_value));
-  }
-
-  for (auto & changed_parameter : event->changed_parameters) {
-    update &= (map_parameter_to_tf(changed_parameter.name, changed_parameter.value.double_value) ||
-      map_parameter_to_frame(changed_parameter.name, changed_parameter.value.string_value));
-  }
-
-  // check that the frame_id and child_frame_id are set
-  if (update && !m_tf_msg.header.frame_id.empty() && !m_tf_msg.child_frame_id.empty()) {
-    // update timestamp
-    m_tf_msg.header.stamp = m_clock->now();
-    // publish static transform
-    RCLCPP_INFO(
-      this->get_logger(),
-      "publishing new transform from '%s' to '%s'", m_tf_msg.header.frame_id,
-      m_tf_msg.child_frame_id);
-    m_broadcaster->sendTransform(m_tf_msg);
-  }
+  // send transform
+  tf_msg.header.stamp = clock->now();
+  m_broadcaster->sendTransform(tf_msg);
 }
 }  // namespace tf2_ros
 
