@@ -122,8 +122,7 @@ int main(int argc, char ** argv)
     {"/child_frame_id", child_id},
   });
 
-  // TODO(clalancette): Anonymize the node name like it is in ROS1.
-  node = std::make_shared<tf2_ros::StaticTransformPublisher>(options, "static_transform_publisher");
+  node = std::make_shared<tf2_ros::StaticTransformPublisher>(options);
 
   // else if (args.size() == 2) {
   //   const std::string param_name = args[1];

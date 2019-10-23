@@ -74,18 +74,17 @@ ament_target_dependencies(static_transform_publisher
   "tf2_msgs"
 )
 
-# static_transform_component
-add_library(static_transform_component SHARED
-  src/static_transform_component.cpp
+add_library(static_transform_publisher SHARED
+  src/static_transform_publisher.cpp
 )
-target_link_libraries(static_transform_component ${PROJECT_NAME})
-ament_target_dependencies(static_transform_component
+target_link_libraries(static_transform_publisher ${PROJECT_NAME})
+ament_target_dependencies(static_transform_publisher
   "geometry_msgs"
   "rclcpp"
   "tf2_msgs"
   "rclcpp_components"
 )
-rclcpp_components_register_nodes(static_transform_component "tf2_ros::StaticTransformPublisher")
+rclcpp_components_register_nodes(static_transform_publisher "tf2_ros::StaticTransformPublisher")
 
 add_executable(tf2_echo
   src/tf2_echo.cpp

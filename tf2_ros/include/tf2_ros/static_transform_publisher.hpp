@@ -28,28 +28,23 @@
  */
 
 #ifndef TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
-#define TF2_ROS__STATIC_TRANSFORM_COMPONENT_HPP_
+#define TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
 
-#include "rclcpp/clock.hpp"
-#include "rclcpp/time_source.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include <tf2/LinearMath/Quaternion.h>
-#include "tf2_ros/static_transform_broadcaster.h"
+#include <memory>
 
-#include "builtin_interfaces/msg/time.hpp"
-
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/tf2_ros.h>
 
 namespace tf2_ros
 {
 class StaticTransformPublisher : public rclcpp::Node
 {
 public:
-  explicit StaticTransformPublisher(
-    rclcpp::NodeOptions options, const char * name = "StaticTransformPublisher");
+  explicit StaticTransformPublisher(rclcpp::NodeOptions options)
   ~StaticTransformPublisher() override = default;
 
 private:
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_;
 };
 }
-#endif  // TF2_ROS__STATIC_TRANSFORM_COMPONENT_HPP_
+#endif  // TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
