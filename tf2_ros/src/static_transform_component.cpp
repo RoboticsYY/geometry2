@@ -52,6 +52,17 @@ StaticTransformPublisher::StaticTransformPublisher(
   m_param_callback =
     m_parameters_client->on_parameter_event(this,
       std::bind(&StaticTransformPublisher::on_parameter_change, this, std::placeholders::_1));
+
+  // declare parameters we will use to set the static transform
+  this->declare_parameter("/translation/x");
+  this->declare_parameter("/translation/y");
+  this->declare_paremeter("/translation/z");
+  this->declare_parameter("/rotation/x");
+  this->declare_parameter("/rotation/y");
+  this->declare_parameter("/rotation/z");
+  this->declare_parameter("/rotation/w");
+  this->declare_parameter("/frame_id");
+  this->declare_parameter("/child_frame_id");
 }
 
 void StaticTransformPublisher::on_parameter_change(const ParameterEvent event)
