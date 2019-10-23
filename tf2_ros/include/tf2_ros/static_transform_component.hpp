@@ -45,30 +45,22 @@ class StaticTransformPublisher : public rclcpp::Node
 {
 public:
   explicit StaticTransformPublisher(
-    double tx, double ty, double tz,
-    double ax, double ay, double az, double aw,
-    const char * frame_id, const char * child_id,
-    rclcpp::NodeOptions options, const char * name);
-
-  explicit StaticTransformPublisher(
-    double tx, double ty, double tz,
-    double r, double p, double y,
-    const char * frame_id, const char * child_id,
-    rclcpp::NodeOptions options, const char * name);
-
-  explicit StaticTransformPublisher(
-    const rclcpp::NodeOptions & options, const char * name = "StaticTransformPublisher");
-
-  using TransformStamped = geometry_msgs::msg::TransformStamped;
-
-  void send_transform(const TransformStamped & transform);
-
+    rclcpp::NodeOptions options, const char * name = "StaticTransformPublisher");
   ~StaticTransformPublisher() override = default;
 
 private:
+  using ParameterEvent = std::shared_ptr<rcl_interfaces::msg::ParameterEvent>;
+  void on_parameter_change(const ParameterEvent event);
+  using SyncParametersClient = std::shared_ptr<rclcpp::SyncParametersClient>;
+  SyncParametersClient m_parameters_client;
+  using ParamSubscription =
+    std::shared_ptr<rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>>;
+  ParamSubscription m_param_callback;
+
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> m_broadcaster;
   rclcpp::TimeSource m_time_source;
   std::shared_ptr<rclcpp::Clock> m_clock;
+  using TransformStamped = geometry_msgs::msg::TransformStamped;
   TransformStamped m_tf_msg;
 };
 }
