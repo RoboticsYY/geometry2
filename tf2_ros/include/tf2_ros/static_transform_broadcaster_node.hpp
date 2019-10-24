@@ -34,12 +34,14 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
+#include "tf2_ros/visibility_control.h"
 
 namespace tf2_ros
 {
 class StaticTransformBroadcasterNode : public rclcpp::Node
 {
 public:
+  TF2_ROS_PUBLIC
   explicit StaticTransformBroadcasterNode(const rclcpp::NodeOptions & options);
   ~StaticTransformBroadcasterNode() override = default;
 
