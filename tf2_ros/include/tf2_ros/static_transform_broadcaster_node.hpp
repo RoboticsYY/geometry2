@@ -38,10 +38,9 @@
 
 namespace tf2_ros
 {
-class StaticTransformBroadcasterNode : public rclcpp::Node
+class TF2_ROS_PUBLIC StaticTransformBroadcasterNode : public rclcpp::Node
 {
 public:
-  TF2_ROS_PUBLIC
   explicit StaticTransformBroadcasterNode(const rclcpp::NodeOptions & options);
   ~StaticTransformBroadcasterNode() override = default;
 
