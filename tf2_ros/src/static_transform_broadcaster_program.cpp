@@ -36,7 +36,7 @@
 #include "rclcpp/time_source.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include <tf2/LinearMath/Quaternion.h>
-#include "tf2_ros/static_transform_component.hpp"
+#include "tf2_ros/static_transform_broadcaster_node.hpp"
 
 #include "builtin_interfaces/msg/time.hpp"
 
@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
   //Initialize ROS
   std::vector<std::string> args = rclcpp::init_and_remove_ros_arguments(argc, argv);
   rclcpp::NodeOptions options;
-  std::shared_ptr<tf2_ros::StaticTransformPublisher> node;
+  std::shared_ptr<tf2_ros::StaticTransformBroadcasterNode> node;
 
   if (args.size() != 9 && args.size() != 10) {
     printf("A command line utility for manually sending a transform.\n");
@@ -122,7 +122,7 @@ int main(int argc, char ** argv)
     {"/child_frame_id", child_id},
   });
 
-  node = std::make_shared<tf2_ros::StaticTransformPublisher>(options);
+  node = std::make_shared<tf2_ros::StaticTransformBroadcasterNode>(options);
 
   // else if (args.size() == 2) {
   //   const std::string param_name = args[1];

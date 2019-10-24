@@ -27,24 +27,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
-#define TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
+#ifndef TF2_ROS__STATIC_TRANSFORM_BROADCASTER_NODE_HPP_
+#define TF2_ROS__STATIC_TRANSFORM_BROADCASTER_NODE_HPP_
 
 #include <memory>
 
-#include <rclcpp/rclcpp.hpp>
-#include <tf2_ros/tf2_ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/static_transform_broadcaster.h"
 
 namespace tf2_ros
 {
-class StaticTransformPublisher : public rclcpp::Node
+class StaticTransformBroadcasterNode : public rclcpp::Node
 {
 public:
-  explicit StaticTransformPublisher(rclcpp::NodeOptions options)
-  ~StaticTransformPublisher() override = default;
+    explicit StaticTransformBroadcasterNode(rclcpp::NodeOptions options);
+  ~StaticTransformBroadcasterNode() override = default;
 
 private:
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_;
 };
 }
-#endif  // TF2_ROS__STATIC_TRANSFORM_PUBLISHER_HPP_
+#endif  // TF2_ROS__STATIC_TRANSFORM_BROADCASTER_NODE_HPP_

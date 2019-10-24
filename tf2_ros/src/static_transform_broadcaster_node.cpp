@@ -30,14 +30,14 @@
 #include <chrono>
 #include <memory>
 
-#include "tf2_ros/static_transform_component.hpp"
+#include "tf2_ros/static_transform_broadcaster_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
 
 namespace tf2_ros
 {
-StaticTransformPublisher::StaticTransformPublisher(rclcpp::NodeOptions options)
+StaticTransformBroadcasterNode::StaticTransformBroadcasterNode(rclcpp::NodeOptions options)
 : rclcpp::Node("static_transform_publisher", options)
 // TODO(clalancette): Anonymize the node name like it is in ROS1.
 {
@@ -74,14 +74,14 @@ StaticTransformPublisher::StaticTransformPublisher(rclcpp::NodeOptions options)
     RCLCPP_ERROR(this->get_logger(),
       "cannot publish static transform from '%s' to '%s', exiting",
       tf_msg.header.frame_id.c_str(), tf_msg.child_frame_id.c_str());
-    throw std::runtime_exception("child_frame_id cannot equal frame_id");
+    throw std::runtime_error("child_frame_id cannot equal frame_id");
   }
   // send transform
   tf_msg.header.stamp = this->now();
-  m_broadcaster->sendTransform(tf_msg);
+  broadcaster_->sendTransform(tf_msg);
 }
 }  // namespace tf2_ros
 
 #include "rclcpp_components/register_node_macro.hpp"
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tf2_ros::StaticTransformPublisher)
+RCLCPP_COMPONENTS_REGISTER_NODE(tf2_ros::StaticTransformBroadcasterNode)

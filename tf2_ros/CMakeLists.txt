@@ -66,7 +66,7 @@ add_executable(static_transform_publisher
 )
 target_link_libraries(static_transform_publisher
   ${PROJECT_NAME}
-  static_transform_component
+  static_transform_broadcaster_node
 )
 ament_target_dependencies(static_transform_publisher
   "geometry_msgs"
@@ -74,17 +74,17 @@ ament_target_dependencies(static_transform_publisher
   "tf2_msgs"
 )
 
-add_library(static_transform_publisher SHARED
-  src/static_transform_publisher.cpp
+add_library(static_transform_broadcaster_node SHARED
+  src/static_transform_broadcaster_node.cpp
 )
-target_link_libraries(static_transform_publisher ${PROJECT_NAME})
-ament_target_dependencies(static_transform_publisher
+target_link_libraries(static_transform_broadcaster_node ${PROJECT_NAME})
+ament_target_dependencies(static_transform_broadcaster_node
   "geometry_msgs"
   "rclcpp"
   "tf2_msgs"
   "rclcpp_components"
 )
-rclcpp_components_register_nodes(static_transform_publisher "tf2_ros::StaticTransformPublisher")
+rclcpp_components_register_nodes(static_transform_broadcaster_node "tf2_ros::StaticTransformBroadcasterNode")
 
 add_executable(tf2_echo
   src/tf2_echo.cpp
@@ -119,7 +119,7 @@ install(TARGETS
 install(TARGETS
   buffer_server
   static_transform_publisher
-  static_transform_component
+  static_transform_broadcaster_node
   tf2_echo
   tf2_monitor
   DESTINATION lib/${PROJECT_NAME}
