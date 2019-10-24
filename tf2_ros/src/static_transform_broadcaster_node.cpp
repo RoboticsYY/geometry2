@@ -33,42 +33,29 @@
 #include "tf2_ros/static_transform_broadcaster_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-using namespace std::chrono_literals;
-
 namespace tf2_ros
 {
-StaticTransformBroadcasterNode::StaticTransformBroadcasterNode(rclcpp::NodeOptions options)
+StaticTransformBroadcasterNode::StaticTransformBroadcasterNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("static_transform_publisher", options)
 // TODO(clalancette): Anonymize the node name like it is in ROS1.
 {
-  rclcpp::ParameterValue default_value(static_cast<double>(0));
+  geometry_msgs::msg::TransformStamped tf_msg;
   rcl_interfaces::msg::ParameterDescriptor descriptor;
   descriptor.read_only = true;
-  auto tx = this->declare_parameter("/translation/x", default_value, descriptor);
-  auto ty = this->declare_parameter("/translation/y", default_value, descriptor);
-  auto tz = this->declare_parameter("/translation/z", default_value, descriptor);
-  auto rx = this->declare_parameter("/rotation/x", default_value, descriptor);
-  auto ry = this->declare_parameter("/rotation/y", default_value, descriptor);
-  auto rz = this->declare_parameter("/rotation/z", default_value, descriptor);
-  auto rw = this->declare_parameter("/rotation/w", default_value, descriptor);
-  auto p_frame_id =
-    this->declare_parameter("/frame_id", rclcpp::ParameterValue(std::string("/frame")), descriptor);
-  auto p_child_id =
-    this->declare_parameter("/child_frame_id", rclcpp::ParameterValue(std::string(
-        "/child")), descriptor);
 
-  broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(this);
+  tf_msg.header.stamp = this->now();
+  tf_msg.transform.translation.x = this->declare_parameter("/translation/x", 0.0, descriptor);
+  tf_msg.transform.translation.y = this->declare_parameter("/translation/y", 0.0, descriptor);
+  tf_msg.transform.translation.z = this->declare_parameter("/translation/z", 0.0, descriptor);
+  tf_msg.transform.rotation.x = this->declare_parameter("/rotation/x", 0.0, descriptor);
+  tf_msg.transform.rotation.y = this->declare_parameter("/rotation/y", 0.0, descriptor);
+  tf_msg.transform.rotation.z = this->declare_parameter("/rotation/z", 0.0, descriptor);
+  tf_msg.transform.rotation.w = this->declare_parameter("/rotation/w", 0.0, descriptor);
+  tf_msg.header.frame_id =
+    this->declare_parameter("/frame_id", std::string("/frame"), descriptor);
+  tf_msg.child_frame_id =
+    this->declare_parameter("/child_frame_id", std::string("/child"), descriptor);
 
-  geometry_msgs::msg::TransformStamped tf_msg;
-  tf_msg.transform.translation.x = tx.get<double>();
-  tf_msg.transform.translation.y = ty.get<double>();
-  tf_msg.transform.translation.z = tz.get<double>();
-  tf_msg.transform.rotation.x = rx.get<double>();
-  tf_msg.transform.rotation.y = ry.get<double>();
-  tf_msg.transform.rotation.z = rz.get<double>();
-  tf_msg.transform.rotation.w = rw.get<double>();
-  tf_msg.header.frame_id = p_frame_id.get<std::string>();
-  tf_msg.child_frame_id = p_child_id.get<std::string>();
   // check frame_id != child_frame_id
   if (tf_msg.header.frame_id == tf_msg.child_frame_id) {
     RCLCPP_ERROR(this->get_logger(),
@@ -76,8 +63,10 @@ StaticTransformBroadcasterNode::StaticTransformBroadcasterNode(rclcpp::NodeOptio
       tf_msg.header.frame_id.c_str(), tf_msg.child_frame_id.c_str());
     throw std::runtime_error("child_frame_id cannot equal frame_id");
   }
+
+  broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(this);
+
   // send transform
-  tf_msg.header.stamp = this->now();
   broadcaster_->sendTransform(tf_msg);
 }
 }  // namespace tf2_ros
