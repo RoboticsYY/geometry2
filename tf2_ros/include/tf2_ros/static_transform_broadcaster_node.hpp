@@ -44,6 +44,7 @@ public:
   TF2_ROS_PUBLIC
   explicit StaticTransformBroadcasterNode(const rclcpp::NodeOptions & options);
 
+  TF2_ROS_PUBLIC
   ~StaticTransformBroadcasterNode() override = default;
 
 private:
