@@ -77,6 +77,7 @@ ament_target_dependencies(static_transform_publisher
 add_library(static_transform_broadcaster_node SHARED
   src/static_transform_broadcaster_node.cpp
 )
+target_compile_definitions(static_transform_broadcaster_node PRIVATE "STATIC_TRANSFORM_BROADCASTER_BUILDING_DLL")
 target_link_libraries(static_transform_broadcaster_node ${PROJECT_NAME})
 ament_target_dependencies(static_transform_broadcaster_node
   "geometry_msgs"
