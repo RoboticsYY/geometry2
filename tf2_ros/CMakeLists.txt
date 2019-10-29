@@ -116,11 +116,17 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 
+install(TARGETS
+  static_transform_broadcaster_node
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 # install executables
 install(TARGETS
   buffer_server
   static_transform_publisher
-  static_transform_broadcaster_node
   tf2_echo
   tf2_monitor
   DESTINATION lib/${PROJECT_NAME}
@@ -215,7 +221,7 @@ endif()
 endif()
 
 ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
+ament_export_libraries(${PROJECT_NAME} static_transform_broadcaster_node)
 ament_export_dependencies(message_filters)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(tf2_msgs)
