@@ -51,7 +51,7 @@ StaticTransformBroadcasterNode::StaticTransformBroadcasterNode(const rclcpp::Nod
   tf_msg.transform.rotation.x = this->declare_parameter("/rotation/x", 0.0, descriptor);
   tf_msg.transform.rotation.y = this->declare_parameter("/rotation/y", 0.0, descriptor);
   tf_msg.transform.rotation.z = this->declare_parameter("/rotation/z", 0.0, descriptor);
-  tf_msg.transform.rotation.w = this->declare_parameter("/rotation/w", 0.0, descriptor);
+  tf_msg.transform.rotation.w = this->declare_parameter("/rotation/w", 1.0, descriptor);
   tf_msg.header.frame_id =
     this->declare_parameter("/frame_id", std::string("/frame"), descriptor);
   tf_msg.child_frame_id =
